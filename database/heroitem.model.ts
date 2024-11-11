@@ -6,6 +6,7 @@ export interface IHeroItem extends Document {
   artist_id: string;
   artist_name_chinese: string;
   image: string;
+  imageId: string;
   painting_id: string;
 }
 
@@ -15,6 +16,7 @@ const HeroItemSchema = new Schema<IHeroItem>({
   artist_id: { type: String, required: true },
   artist_name_chinese: { type: String },
   image: { type: String, required: true },
+  imageId: { type: String, required: false, default: '' },
   painting_id: { type: String, required: true },
 });
 

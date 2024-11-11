@@ -54,7 +54,7 @@ export async function updateHeroItem(id: string, data: string) {
   try {
     await connectToDatabase();
     const heroItemData = JSON.parse(data) as IHeroItem;
-    console.log(heroItemData);
+    // console.log(heroItemData);
     const artist_id = heroItemData.artist_id;
     // get artist item 
     const artistItemString = await getArtistByArtistId(artist_id);
@@ -65,6 +65,7 @@ export async function updateHeroItem(id: string, data: string) {
       artist_id: artist_id,
       artist_name_chinese: artistItem.name_chinese,
       image: heroItemData.image,
+      imageId: heroItemData.imageId,
       painting_id: heroItemData.painting_id
     }, { new: true, runValidators: true });
     // const updatedItem = await HeroItem.findByIdAndUpdate(id, data, { new: true, runValidators: true });
@@ -82,7 +83,7 @@ export async function createHeroItem(data: string) {
   try {
     await connectToDatabase();
     const heroItemData = JSON.parse(data) as IHeroItem;
-    console.log(heroItemData);
+    // console.log(heroItemData);
     const artist_id = heroItemData.artist_id;
     // get artist item
     const artistItemString = await getArtistByArtistId(artist_id);
@@ -93,6 +94,7 @@ export async function createHeroItem(data: string) {
       artist_id: artist_id,
       artist_name_chinese: artistItem.name_chinese,
       image: heroItemData.image,
+      imageId: heroItemData.imageId,
       painting_id: heroItemData.painting_id
     });
     // insert new hero item into database

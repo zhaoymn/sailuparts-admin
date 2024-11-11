@@ -1,5 +1,5 @@
 "use client";
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { z } from "zod";
 import {
   Form,
@@ -12,45 +12,53 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea"; // You'll need to create/import this
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { FaImage, FaSave, FaTimes } from "react-icons/fa";
-import {
-  createHeroItem,
-  getHeroItemById,
-  updateHeroItem,
-} from "@/lib/actions/heroitem.action";
 import { ImageKitProvider } from "imagekitio-next";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  updateArtist,
+  createArtist,
+  getArtistById,
+} from "@/lib/actions/artist.action";
 
 const urlEndpoint = process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT!;
 const publicKey = process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY!;
 
-const heroItemZodSchema = z.object({
-  _id: z.string(),
-  title: z.string().min(1, "Title is required"),
-  artist_id: z.string().min(1, "Artist ID is required"),
-  image: z.string().url("Invalid image URL"),
-  imageId: z.string().optional(),
-  painting_id: z.string().min(1, "Painting ID is required"),
+const artistZodSchema = z.object({
+  _id: z.string().optional(),
+  name: z.string().min(1, "English name is required"),
+  name_chinese: z.string().min(1, "Chinese name is required"),
+  birth_year: z.number().min(1, "Birth year is required"),
+  bio: z.string().min(1, "Biography is required"),
+  bio_chinese: z.string().min(1, "Chinese biography is required"),
+  profile_image: z.string().url("Invalid image URL"),
+  profile_imageId: z.string().optional(),
+  featured: z.boolean().default(false),
 });
 
-const HeroItemForm = ({ params }: { params: { id: string } }) => {
+const ArtistForm = ({ params }: { params: { id?: string } }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [originalImageId, setOriginalImageId] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const form = useForm<z.infer<typeof heroItemZodSchema>>({
-    resolver: zodResolver(heroItemZodSchema),
+  const form = useForm<z.infer<typeof artistZodSchema>>({
+    resolver: zodResolver(artistZodSchema),
     defaultValues: {
       _id: params.id,
-      title: "",
-      artist_id: "",
-      image: "",
-      imageId: "",
-      painting_id: "",
+      name: "",
+      name_chinese: "",
+      birth_year: 0,
+      bio: "",
+      bio_chinese: "",
+      profile_image: "",
+      profile_imageId: "",
+      featured: false,
     },
   });
 
@@ -58,20 +66,21 @@ const HeroItemForm = ({ params }: { params: { id: string } }) => {
   const router = useRouter();
 
   useEffect(() => {
-    const fetchHeroItem = async () => {
+    const fetchArtist = async () => {
       try {
-        const heroItemString = await getHeroItemById(id);
-        const heroItem = JSON.parse(heroItemString);
-        form.reset(heroItem);
-        if (heroItem.image) {
-          setPreviewUrl(heroItem.image);
-          setOriginalImageId(heroItem.imageId);
+        const response = await getArtistById(id!);
+        const artist = await JSON.parse(response);
+        form.reset(artist);
+        if (artist.profile_image) {
+          setPreviewUrl(artist.profile_image);
+          setOriginalImageId(artist.profile_imageId);
         }
       } catch (error) {
         console.error(error);
+        setError("Failed to fetch artist data");
       }
     };
-    if (id) fetchHeroItem();
+    if (id) fetchArtist();
   }, [id, form]);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,20 +91,16 @@ const HeroItemForm = ({ params }: { params: { id: string } }) => {
         return;
       }
 
-      if (file.size > 20 * 1024 * 1024) {
+      if (file.size > 5 * 1024 * 1024) {
         setError("File size should be less than 5MB");
         return;
       }
 
       setSelectedFile(file);
       setError(null);
-
-      // Create local preview
       const objectUrl = URL.createObjectURL(file);
       setPreviewUrl(objectUrl);
-
-      // Update form image field with temporary local URL
-      form.setValue("image", objectUrl);
+      form.setValue("profile_image", objectUrl);
     }
   };
 
@@ -106,18 +111,15 @@ const HeroItemForm = ({ params }: { params: { id: string } }) => {
     formData.append("publicKey", publicKey);
 
     try {
-      // Get authentication parameters
       const authResponse = await fetch("/api/imagekit/auth");
       const authData = await authResponse.json();
 
-      // Add required authentication parameters
       formData.append("signature", authData.signature);
       formData.append("token", authData.token);
       formData.append("expire", authData.expire);
       formData.append("useUniqueFileName", "true");
-      formData.append("folder", "/website/hero_section");
+      formData.append("folder", "/artists");
 
-      // Upload to ImageKit
       const uploadResponse = await fetch(
         "https://upload.imagekit.io/api/v1/files/upload",
         {
@@ -132,7 +134,6 @@ const HeroItemForm = ({ params }: { params: { id: string } }) => {
       }
 
       const uploadResult = await uploadResponse.json();
-      console.log("Upload result:", uploadResult);
       return {
         url: uploadResult.url,
         fileId: uploadResult.fileId,
@@ -165,62 +166,42 @@ const HeroItemForm = ({ params }: { params: { id: string } }) => {
     }
   };
 
-  const onSubmit = async (values: z.infer<typeof heroItemZodSchema>) => {
-    console.log("Form values:", values);
-    let imageUrl = values.image;
-    let imageId = originalImageId;
-
+  const onSubmit = async (values: z.infer<typeof artistZodSchema>) => {
     try {
       setIsUploading(true);
+      let imageUrl = values.profile_image;
+      let imageId = originalImageId;
 
-      // If there's a selected file, upload it
       if (selectedFile) {
-        // If there's an original image, you might want to delete it first
         if (originalImageId) {
-          if (originalImageId == "") {
-            console.log("Original image ID is empty");
-          }
-          console.log("Deleting original image:", originalImageId);
           try {
             await deleteFromImageKit(originalImageId);
           } catch (error) {
             console.error("Failed to delete original image:", error);
-            // Continue with upload even if delete fails
           }
         }
 
-        // Upload new image and directly assign the destructured values
         const uploadResult = await uploadToImageKit(selectedFile);
         imageUrl = uploadResult.url;
         imageId = uploadResult.fileId;
-        console.log("Uploaded image:", imageUrl);
-        console.log("Uploaded image ID:", imageId);
       }
 
-      // Update the values with the new image URL
       const updatedValues = {
         ...values,
-        image: imageUrl,
-        imageId: imageId,
+        profile_image: imageUrl,
+        profile_imageId: imageId,
       };
 
-      console.log("Updated values:", updatedValues);
-
-      const validatedValues = heroItemZodSchema.parse(updatedValues);
-      const validatedValuesString = JSON.stringify(validatedValues);
-      // console.log(validatedValuesString);
       if (id) {
-        await updateHeroItem(id, validatedValuesString);
+        await updateArtist(id, JSON.stringify(updatedValues));
       } else {
-        await createHeroItem(validatedValuesString);
+        await createArtist(JSON.stringify(updatedValues));
       }
-      router.replace("/hero");
+
+      router.push("/artists");
+      router.refresh();
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        console.error(error.errors);
-      } else {
-        console.error(error);
-      }
+      console.error(error);
       setError("Failed to save changes");
     } finally {
       setIsUploading(false);
@@ -229,20 +210,91 @@ const HeroItemForm = ({ params }: { params: { id: string } }) => {
 
   return (
     <ImageKitProvider urlEndpoint={urlEndpoint} publicKey={publicKey}>
-      <div className="conatiner mx-auto p-4">
+      <div className="container mx-auto p-4">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="title"
+              name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor="title">Title</FormLabel>
+                  <FormLabel>English Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="title" {...field} />
+                    <Input placeholder="Enter English name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="name_chinese"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Chinese Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter Chinese name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="birth_year"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Birth Year</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      placeholder="Enter birth year"
+                      {...field}
+                      onChange={(e) => field.onChange(parseInt(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="bio"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Biography (English)</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Enter English biography"
+                      className="resize-none min-h-[150px]"
+                      {...field}
+                    />
                   </FormControl>
                   <FormDescription>
-                    Enter the title of the hero item
+                    Write a detailed biography of the artist in English
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="bio_chinese"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Biography (Chinese)</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="输入艺术家的中文简介"
+                      className="resize-none min-h-[150px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Write a detailed biography of the artist in Chinese
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -250,24 +302,10 @@ const HeroItemForm = ({ params }: { params: { id: string } }) => {
             />
             <FormField
               control={form.control}
-              name="artist_id"
+              name="profile_image"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor="artist_id">Artist ID</FormLabel>
-                  <FormControl>
-                    <Input placeholder="artist id" {...field} />
-                  </FormControl>
-                  <FormDescription>Enter the artist ID</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="image"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Image</FormLabel>
+                  <FormLabel>Profile Image</FormLabel>
                   <FormControl>
                     <div className="space-y-4">
                       <Input
@@ -310,15 +348,29 @@ const HeroItemForm = ({ params }: { params: { id: string } }) => {
 
             <FormField
               control={form.control}
-              name="painting_id"
+              name="featured"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel htmlFor="painting_id">Painting ID</FormLabel>
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
                   <FormControl>
-                    <Input placeholder="painting id" {...field} />
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={(checked) => {
+                        field.onChange(checked);
+                      }}
+                      id="featured"
+                    />
                   </FormControl>
-                  <FormDescription>Enter the painting ID</FormDescription>
-                  <FormMessage />
+                  <div className="space-y-1 leading-none">
+                    <FormLabel
+                      htmlFor="featured"
+                      className="font-medium text-sm"
+                    >
+                      Featured Artist
+                    </FormLabel>
+                    <FormDescription>
+                      Select this option to feature this artist on the homepage
+                    </FormDescription>
+                  </div>
                 </FormItem>
               )}
             />
@@ -334,7 +386,7 @@ const HeroItemForm = ({ params }: { params: { id: string } }) => {
               </Button>
               <Button
                 type="button"
-                onClick={() => router.replace("/hero")}
+                onClick={() => router.replace("/artists")}
                 className="bg-gray-500 hover:bg-gray-600"
               >
                 <FaTimes className="mr-2" />
@@ -348,4 +400,4 @@ const HeroItemForm = ({ params }: { params: { id: string } }) => {
   );
 };
 
-export default HeroItemForm;
+export default ArtistForm;

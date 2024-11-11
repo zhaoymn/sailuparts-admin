@@ -9,6 +9,7 @@ export interface IArtist extends Document {
   bio_chinese: string;
 
   profile_image: string;
+  profile_imageId: string;
   paintings: Schema.Types.ObjectId[];
   favorited_by: Schema.Types.ObjectId[];
   featured: boolean;
@@ -24,6 +25,7 @@ const ArtistSchema = new Schema<IArtist>({
   bio_chinese: { type: String, required: true },
   
   profile_image: { type: String, required: true },
+  profile_imageId: { type: String, required: false, default: '' },
   paintings: [{ type: Schema.Types.ObjectId, ref: 'Painting' }],
   favorited_by: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   featured: { type: Boolean, default: false },

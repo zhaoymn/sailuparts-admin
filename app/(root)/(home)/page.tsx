@@ -1,10 +1,10 @@
 import { SignedIn, SignedOut, SignInButton, SignUpButton } from "@clerk/nextjs";
 import Link from "next/link";
-import { FC } from "react";
+import React from "react";
 
-const HomePage: FC = () => {
+const HomePage = () => {
   return (
-    <>
+    <div>
       <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 flex flex-col items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow-2xl p-8 max-w-md w-full">
           <h1 className="text-4xl font-bold mb-6 text-center text-gray-800">
@@ -39,7 +39,7 @@ const HomePage: FC = () => {
           &copy; 2024 SailUp Arts LLC. All rights reserved.
         </footer>
       </div>
-    </>
+    </div>
   );
 };
 
