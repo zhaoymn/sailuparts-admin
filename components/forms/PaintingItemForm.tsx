@@ -310,6 +310,7 @@ const PaintingItemForm = ({ params }: { params: { id: string } }) => {
   ) => {
     setBusy(true);
     const file = event.target.files?.[0];
+    console.log(file);
     if (!file) return;
     try {
       const result = await processImage(file);
