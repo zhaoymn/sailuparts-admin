@@ -13,7 +13,7 @@ export async function GET() {
     // Generate a unique token using timestamp and random string
     const token = crypto.randomUUID();
     const expire = Math.floor(Date.now() / 1000) + 3600; // 1 hour from now
-    const result = imagekit.getAuthenticationParameters();
+    const result = imagekit.getAuthenticationParameters(token, expire);
     return NextResponse.json(result);
   } catch (error) {
     return NextResponse.json(
