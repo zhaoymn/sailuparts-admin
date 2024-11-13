@@ -337,7 +337,7 @@ const PaintingItemForm = ({ params }: { params: { id: string } }) => {
       setBusy(false);
     }
 
-    window.location.reload();
+    // window.location.reload();
   };
 
   const handleRemoveImage = async (index: number, url: string) => {
@@ -351,7 +351,7 @@ const PaintingItemForm = ({ params }: { params: { id: string } }) => {
       setBusy(false);
     }
 
-    window.location.reload();
+    // window.location.reload();
   };
 
   useEffect(() => {
