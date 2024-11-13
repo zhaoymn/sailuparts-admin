@@ -14,9 +14,9 @@ const imagekit = new ImageKit({
 export async function GET() {
   try {
     // Generate a unique token using timestamp and random string
-    const token = crypto.randomUUID();
-    const expire = Math.floor(Date.now() / 1000) + 3600; // 1 hour from now
-    const result = imagekit.getAuthenticationParameters(token, expire);
+    // const token = crypto.randomUUID();
+    // const expire = Math.floor(Date.now() / 1000) + 3600; // 1 hour from now
+    const result = imagekit.getAuthenticationParameters();
     // Add cache control headers
     // return NextResponse.json(result, {
     //   headers: {
