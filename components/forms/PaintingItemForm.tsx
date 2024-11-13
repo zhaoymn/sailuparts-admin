@@ -220,6 +220,16 @@ const PaintingItemForm = ({ params }: { params: { id: string } }) => {
     });
   };
 
+  function generateUniqueToken() {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+      /[xy]/g,
+      function (c) {
+        const r = (Math.random() * 16) | 0;
+        const v = c === "x" ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      }
+    );
+  }
   const uploadToImageKit = async (file: File, size: string) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -231,7 +241,7 @@ const PaintingItemForm = ({ params }: { params: { id: string } }) => {
       const authData = await authResponse.json();
 
       formData.append("signature", authData.signature);
-      formData.append("token", authData.token);
+      formData.append("token", generateUniqueToken());
       formData.append("expire", authData.expire);
       formData.append("useUniqueFileName", "true");
       if (size === "original") {
@@ -337,7 +347,7 @@ const PaintingItemForm = ({ params }: { params: { id: string } }) => {
       setBusy(false);
     }
 
-    // window.location.reload();
+    window.location.reload();
   };
 
   const handleRemoveImage = async (index: number, url: string) => {
@@ -351,7 +361,7 @@ const PaintingItemForm = ({ params }: { params: { id: string } }) => {
       setBusy(false);
     }
 
-    // window.location.reload();
+    window.location.reload();
   };
 
   useEffect(() => {
