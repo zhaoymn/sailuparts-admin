@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import ImageKit from 'imagekit';
+import crypto from 'crypto';
 
 const imagekit = new ImageKit({
   privateKey: process.env.IMAGEKIT_PRIVATE_KEY || '',
@@ -9,6 +10,9 @@ const imagekit = new ImageKit({
 
 export async function GET() {
   try {
+    // Generate a unique token using timestamp and random string
+    const token = crypto.randomUUID();
+    const expire = Math.floor(Date.now() / 1000) + 3600; // 1 hour from now
     const result = imagekit.getAuthenticationParameters();
     return NextResponse.json(result);
   } catch (error) {
