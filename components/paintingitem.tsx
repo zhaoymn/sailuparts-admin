@@ -20,6 +20,8 @@ import {
   copyPainting,
   deletePainting,
   paintingIdExists,
+  setFeatured,
+  setHomepage,
 } from "@/lib/actions/painting.action";
 import { Edit, Trash2 } from "lucide-react";
 import { Input } from "./ui/input"; // Assuming you have an Input component in the ui folder
@@ -33,6 +35,8 @@ interface Painting {
   medium: string;
   image: string;
   painting_id: string;
+  featured: boolean;
+  homepage: boolean;
 }
 
 interface PaintingComponentProps {
@@ -72,6 +76,32 @@ const PaintingComponent: React.FC<PaintingComponentProps> = ({ painting }) => {
     setCopyOpen(false);
   };
 
+  const handleToggleFeatured = async () => {
+    if (paintingData.featured) {
+      // Unset featured painting
+      await setFeatured(paintingData._id, false);
+    } else {
+      // Set featured painting
+      await setFeatured(paintingData._id, true);
+    }
+
+    router.refresh(); // Refresh the UI to reflect the changes
+  };
+
+  const handleToggleHomepage = async () => {
+    console.log("test");
+    console.log("paintingData.homepage", paintingData.homepage);
+    if (paintingData.homepage) {
+      // Unset homepage painting
+      await setHomepage(paintingData._id, false);
+    } else {
+      // Set homepage painting
+      await setHomepage(paintingData._id, true);
+    }
+
+    router.refresh(); // Refresh the UI to reflect the changes
+  };
+
   return (
     <div className="flex items-center space-x-4">
       <div className="relative w-24 h-24 flex-shrink-0">
@@ -91,6 +121,30 @@ const PaintingComponent: React.FC<PaintingComponentProps> = ({ painting }) => {
         <p className="text-xs text-gray-500">
           Year: {paintingData.year}, Medium: {paintingData.medium}
         </p>
+      </div>
+      <div className="flex space-x-2 items-center">
+        <label className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            checked={paintingData.featured}
+            onChange={() => {
+              handleToggleFeatured();
+            }}
+            className="form-checkbox"
+          />
+          Featured
+        </label>
+        <label className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            checked={paintingData.homepage}
+            onChange={() => {
+              handleToggleHomepage();
+            }}
+            className="form-checkbox"
+          />
+          <span>Homepage</span>
+        </label>
       </div>
       <div className="flex space-x-2">
         <Button

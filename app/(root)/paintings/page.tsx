@@ -66,6 +66,8 @@ const PaintingsPage = async ({ searchParams }: SearchParamsProps) => {
                     medium: painting.material,
                     image: painting.all_images_300[0],
                     painting_id: painting.painting_id,
+                    featured: painting.featured,
+                    homepage: painting.homepage,
                   })}
                 />
               ))}

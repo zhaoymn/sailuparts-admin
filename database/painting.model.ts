@@ -47,6 +47,9 @@ export interface IPainting extends Document {
   is_framed: boolean;
   selling_price: number;
   mount_description: string;
+
+  featured: boolean;
+  homepage: boolean;
 }
 
 const PaintingSchema = new Schema<IPainting>({
@@ -96,6 +99,9 @@ const PaintingSchema = new Schema<IPainting>({
   is_framed: { type: Boolean, required: true },
   selling_price: { type: Number, required: true },
   mount_description: { type: String },
+
+  featured: { type: Boolean, default: false },
+  homepage: { type: Boolean, default: false },
 });
 
 const Painting = models.Painting || model("Painting", PaintingSchema);

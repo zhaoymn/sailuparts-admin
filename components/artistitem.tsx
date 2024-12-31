@@ -15,7 +15,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
-import { deleteArtist } from "@/lib/actions/artist.action";
+import { deleteArtist, setFeatured } from "@/lib/actions/artist.action";
 import { Edit, Trash2 } from "lucide-react";
 
 interface Artist {
@@ -24,6 +24,7 @@ interface Artist {
   name_chinese: string;
   birth_year: number | null;
   profile_image: string;
+  featured: boolean;
 }
 
 interface ArtistComponentProps {
@@ -45,6 +46,17 @@ const ArtistComponent: React.FC<ArtistComponentProps> = ({ artist }) => {
     router.push(`/artists/${id}`);
   };
 
+  const handleToggleFeatured = async () => {
+    if (artistData.featured) {
+      // Unset featured artist
+      await setFeatured(artistData._id, false);
+    } else {
+      // Set featured artist
+      await setFeatured(artistData._id, true);
+    }
+    router.refresh(); // Refresh the UI to reflect the changes
+  };
+
   return (
     <div className="flex items-center space-x-4">
       <div className="relative w-24 h-24 flex-shrink-0">
@@ -62,6 +74,17 @@ const ArtistComponent: React.FC<ArtistComponentProps> = ({ artist }) => {
         <p className="text-xs text-gray-500">{artistData.birth_year}</p>
       </div>
       <div className="flex space-x-2">
+        <label className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            className="form-checkbox"
+            checked={artistData.featured}
+            onChange={() => {
+              handleToggleFeatured();
+            }}
+          />
+          <span>Featured</span>
+        </label>
         <Button
           variant="outline"
           size="sm"
