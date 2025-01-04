@@ -39,6 +39,11 @@ const NavigationBlock: React.FC = () => {
           label="Manage Paintings"
           color="bg-purple-500"
         />
+        <NavButton
+          href="/articles"
+          label="Manage Articles"
+          color="bg-yellow-500"
+        />
       </div>
     </div>
   );

@@ -1,9 +1,5 @@
 import React from "react";
-import {
-  copyPainting,
-  getPaintings,
-  paintingIdExists,
-} from "@/lib/actions/painting.action";
+import { getPaintings } from "@/lib/actions/painting.action";
 import Pagination from "@/components/pagination";
 import PaintingComponent from "@/components/paintingitem";
 import { SearchParamsProps } from "@/types";
@@ -12,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PlusCircle, Home } from "lucide-react";
 import PaintingSearch from "@/components/PaintingSearch";
-import router from "next/router";
 
 const PaintingsPage = async ({ searchParams }: SearchParamsProps) => {
   const pageNumber = Number(searchParams.page) || 1;
