@@ -39,6 +39,7 @@ const articleFormSchema = z.object({
   article_id: z.string().optional(),
   title: z.string().min(1, "Title is required"),
   title_chinese: z.string().optional(),
+  author: z.string().optional(),
   category: z.string().min(1, "Category is required"),
   abstract: z.string().min(1, "Abstract is required"),
   date: z.string().min(1, "Date is required"),
@@ -63,6 +64,7 @@ const ArticleForm = ({ params }: { params: { id?: string } }) => {
       article_id: "",
       title: "",
       title_chinese: "",
+      author: "",
       category: "",
       abstract: "",
       date: new Date().toISOString().split("T")[0],
@@ -259,6 +261,20 @@ const ArticleForm = ({ params }: { params: { id?: string } }) => {
 
             <FormField
               control={form.control}
+              name="author"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Author</FormLabel>
+                  <FormControl>
+                    <Input placeholder="author name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="article_id"
               render={({ field }) => (
                 <FormItem>
@@ -288,14 +304,10 @@ const ArticleForm = ({ params }: { params: { id?: string } }) => {
                     </FormControl>
                     <SelectContent defaultValue={"Art Education"}>
                       <SelectItem value="Art Review">Art Review</SelectItem>
-                      <SelectItem value="Art News">Art News</SelectItem>
                       <SelectItem value="Art History">Art History</SelectItem>
                       <SelectItem value="Art Events">Art Events</SelectItem>
-                      <SelectItem value="Artist Introduction">
-                        Artist Introduction
-                      </SelectItem>
                       <SelectItem value="Art Education">
-                        Art Education
+                        Art Appreciation
                       </SelectItem>
                     </SelectContent>
                   </Select>
