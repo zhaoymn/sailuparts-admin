@@ -91,6 +91,7 @@ export async function createArticle(data: string) {
     const article = new Article({
       article_id: articleData.article_id,
       title: articleData.title,
+      title_chinese: articleData.title_chinese,
       category: articleData.category,
       abstract: articleData.abstract,
       date: articleData.date,

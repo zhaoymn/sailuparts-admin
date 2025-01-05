@@ -38,6 +38,7 @@ const articleFormSchema = z.object({
   _id: z.string().optional(),
   article_id: z.string().optional(),
   title: z.string().min(1, "Title is required"),
+  title_chinese: z.string().optional(),
   category: z.string().min(1, "Category is required"),
   abstract: z.string().min(1, "Abstract is required"),
   date: z.string().min(1, "Date is required"),
@@ -61,6 +62,7 @@ const ArticleForm = ({ params }: { params: { id?: string } }) => {
       _id: params.id,
       article_id: "",
       title: "",
+      title_chinese: "",
       category: "",
       abstract: "",
       date: new Date().toISOString().split("T")[0],
@@ -243,6 +245,20 @@ const ArticleForm = ({ params }: { params: { id?: string } }) => {
 
             <FormField
               control={form.control}
+              name="title_chinese"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Chinese Title</FormLabel>
+                  <FormControl>
+                    <Input placeholder="请在此输入中文标题" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="article_id"
               render={({ field }) => (
                 <FormItem>
@@ -374,7 +390,7 @@ const ArticleForm = ({ params }: { params: { id?: string } }) => {
                   <FormControl>
                     <Textarea
                       placeholder="Enter article content in markdown format"
-                      className="resize-none min-h-[200px]"
+                      className="resize-none min-h-[1000px]"
                       {...field}
                     />
                   </FormControl>
