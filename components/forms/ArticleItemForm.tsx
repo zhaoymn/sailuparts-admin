@@ -88,7 +88,6 @@ const ArticleForm = ({ params }: { params: { id?: string } }) => {
           setPreviewUrl(article.cover_image);
           setoriginalImageId(article.cover_imageId);
         }
-        form.setValue("category", article.category);
       } catch (error) {
         console.error("Error fetching article:", error);
         setError("Failed to fetch article");
@@ -206,6 +205,7 @@ const ArticleForm = ({ params }: { params: { id?: string } }) => {
         ...values,
         cover_image: coverImageUrl,
         cover_imageId: coverImageId,
+        category: values.category,
       };
 
       if (id) {
@@ -293,20 +293,17 @@ const ArticleForm = ({ params }: { params: { id?: string } }) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent defaultValue={"Art Education"}>
+                    <SelectContent>
                       <SelectItem value="Art Review">Art Review</SelectItem>
                       <SelectItem value="Art History">Art History</SelectItem>
                       <SelectItem value="Art Events">Art Events</SelectItem>
-                      <SelectItem value="Art Education">
+                      <SelectItem value="Art Appreciation">
                         Art Appreciation
                       </SelectItem>
                     </SelectContent>
