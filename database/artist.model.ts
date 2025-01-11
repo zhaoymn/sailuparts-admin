@@ -21,9 +21,11 @@ export interface IArtist extends Document {
     current_profession: string;
     best_achievement: string;
   };
-  awards: string;
-  exhibitions: string;
-  external_links: string;
+  awards: string[];
+  exhibitions: string[];
+  publications: string[];
+  external_links: string[];
+  external_link_names: string[];
 }
 
 const ArtistSchema = new Schema<IArtist>({
@@ -47,9 +49,11 @@ const ArtistSchema = new Schema<IArtist>({
     current_profession: { type: String, required: true },
     best_achievement: { type: String, required: true },
   },
-  awards: { type: String, required: false },
-  exhibitions: { type: String, required: false },
-  external_links: { type: String, required: false },
+  awards: [{ type: String }],
+  exhibitions: [{ type: String }],
+  publications: [{ type: String }],
+  external_links: [{ type: String }],
+  external_link_names: [{ type: String }],
 });
 
 const Artist = models.Artist || model("Artist", ArtistSchema);

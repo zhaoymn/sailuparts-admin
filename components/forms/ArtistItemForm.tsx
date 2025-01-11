@@ -24,6 +24,7 @@ import {
   createArtist,
   getArtistById,
 } from "@/lib/actions/artist.action";
+import { X } from "lucide-react";
 
 const urlEndpoint = process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT!;
 const publicKey = process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY!;
@@ -35,9 +36,11 @@ const artistZodSchema = z.object({
   birth_year: z.number().min(1, "Birth year is required"),
   bio: z.string().min(1, "Biography is required"),
   bio_chinese: z.string().min(1, "Chinese biography is required"),
-  awards: z.string().optional(),
-  exhibitions: z.string().optional(),
-  external_links: z.string().optional(),
+  awards: z.array(z.string()).default([]),
+  exhibitions: z.array(z.string()).default([]),
+  publications: z.array(z.string()).default([]),
+  external_links: z.array(z.string()).default([]),
+  external_link_names: z.array(z.string()).default([]),
   profile_image: z.string().url("Invalid image URL"),
   profile_imageId: z.string().optional(),
   featured: z.boolean().default(false),
@@ -59,9 +62,11 @@ const ArtistForm = ({ params }: { params: { id?: string } }) => {
       birth_year: 0,
       bio: "",
       bio_chinese: "",
-      awards: "",
-      exhibitions: "",
-      external_links: "",
+      awards: [],
+      exhibitions: [],
+      publications: [],
+      external_links: [],
+      external_link_names: [],
       profile_image: "",
       profile_imageId: "",
       featured: false,
@@ -314,11 +319,41 @@ const ArtistForm = ({ params }: { params: { id?: string } }) => {
                 <FormItem>
                   <FormLabel>Awards</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="Enter awards and recognitions"
-                      className="resize-none min-h-[150px]"
-                      {...field}
-                    />
+                    <div className="space-y-2">
+                      {field.value.map((award, index) => (
+                        <div key={index} className="flex gap-2">
+                          <Input
+                            value={award}
+                            onChange={(e) => {
+                              const newValues = [...field.value];
+                              newValues[index] = e.target.value;
+                              field.onChange(newValues);
+                            }}
+                            placeholder={`Award ${index + 1}`}
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            onClick={() => {
+                              const newValues = field.value.filter(
+                                (_, i) => i !== index
+                              );
+                              field.onChange(newValues);
+                            }}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => field.onChange([...field.value, ""])}
+                      >
+                        Add Award
+                      </Button>
+                    </div>
                   </FormControl>
                   <FormDescription>
                     List any awards or recognitions received by the artist
@@ -335,11 +370,41 @@ const ArtistForm = ({ params }: { params: { id?: string } }) => {
                 <FormItem>
                   <FormLabel>Exhibitions</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="Enter exhibitions participated"
-                      className="resize-none min-h-[150px]"
-                      {...field}
-                    />
+                    <div className="space-y-2">
+                      {field.value.map((exhibition, index) => (
+                        <div key={index} className="flex gap-2">
+                          <Input
+                            value={exhibition}
+                            onChange={(e) => {
+                              const newValues = [...field.value];
+                              newValues[index] = e.target.value;
+                              field.onChange(newValues);
+                            }}
+                            placeholder={`Exhibition ${index + 1}`}
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            onClick={() => {
+                              const newValues = field.value.filter(
+                                (_, i) => i !== index
+                              );
+                              field.onChange(newValues);
+                            }}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => field.onChange([...field.value, ""])}
+                      >
+                        Add Exhibition
+                      </Button>
+                    </div>
                   </FormControl>
                   <FormDescription>
                     List any exhibitions the artist has participated in
@@ -351,24 +416,119 @@ const ArtistForm = ({ params }: { params: { id?: string } }) => {
 
             <FormField
               control={form.control}
-              name="external_links"
+              name="publications"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>External Links</FormLabel>
+                  <FormLabel>Publications</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="Enter external links"
-                      className="resize-none min-h-[150px]"
-                      {...field}
-                    />
+                    <div className="space-y-2">
+                      {field.value.map((publication, index) => (
+                        <div key={index} className="flex gap-2">
+                          <Input
+                            value={publication}
+                            onChange={(e) => {
+                              const newValues = [...field.value];
+                              newValues[index] = e.target.value;
+                              field.onChange(newValues);
+                            }}
+                            placeholder={`Publication ${index + 1}`}
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            onClick={() => {
+                              const newValues = field.value.filter(
+                                (_, i) => i !== index
+                              );
+                              field.onChange(newValues);
+                            }}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => field.onChange([...field.value, ""])}
+                      >
+                        Add Publication
+                      </Button>
+                    </div>
                   </FormControl>
                   <FormDescription>
-                    Add any external links related to the artist
+                    List any publications featuring the artist
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            <div className="space-y-4">
+              <FormLabel>External Links</FormLabel>
+              <div className="space-y-2">
+                {form.watch("external_links").map((_, index) => (
+                  <div key={index} className="flex gap-2">
+                    <FormField
+                      control={form.control}
+                      name={`external_link_names.${index}`}
+                      render={({ field }) => (
+                        <FormItem className="flex-1">
+                          <FormControl>
+                            <Input {...field} placeholder="Link Name" />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`external_links.${index}`}
+                      render={({ field }) => (
+                        <FormItem className="flex-1">
+                          <FormControl>
+                            <Input {...field} placeholder="Link URL" />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      onClick={() => {
+                        const newLinks = form
+                          .getValues("external_links")
+                          .filter((_, i) => i !== index);
+                        const newNames = form
+                          .getValues("external_link_names")
+                          .filter((_, i) => i !== index);
+                        form.setValue("external_links", newLinks);
+                        form.setValue("external_link_names", newNames);
+                      }}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    const currentLinks = form.getValues("external_links");
+                    const currentNames = form.getValues("external_link_names");
+                    form.setValue("external_links", [...currentLinks, ""]);
+                    form.setValue("external_link_names", [...currentNames, ""]);
+                  }}
+                >
+                  Add External Link
+                </Button>
+              </div>
+              <FormDescription>
+                Add any external links related to the artist
+              </FormDescription>
+              <FormMessage />
+            </div>
 
             <FormField
               control={form.control}
