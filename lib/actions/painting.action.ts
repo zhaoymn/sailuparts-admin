@@ -188,6 +188,16 @@ export async function updatePaintingItem(paintingId: string, data: string) {
     painting.selling_price = paintingData.selling_price;
     painting.mount_description = paintingData.mount_description;
 
+    painting.image_is_rendered = paintingData.image_is_rendered;
+    painting.all_images = paintingData.all_images;
+    painting.all_imageIds = paintingData.all_imageIds;
+    painting.all_images_150 = paintingData.all_images_150;
+    painting.all_imageIds_150 = paintingData.all_imageIds_150;
+    painting.all_images_300 = paintingData.all_images_300;
+    painting.all_imageIds_300 = paintingData.all_imageIds_300;
+    painting.all_images_1000 = paintingData.all_images_1000;
+    painting.all_imageIds_1000 = paintingData.all_imageIds_1000;
+
     await painting.save();
 
     revalidatePath("/paintings");
@@ -248,18 +258,13 @@ export async function addImageToPainting(
 
 export async function removeImageFromPainting(
   paintingId: string,
-  imageUrl: string
+  index: number
 ) {
   try {
     await connectToDatabase();
     const painting = await Painting.findOne({ painting_id: paintingId });
-    // find the index of the image to remove
-    const index = painting.all_images.indexOf(imageUrl);
-    if (index === -1) throw new Error("Image not found");
-    painting.all_images.splice(index, 1);
-    painting.all_images_150.splice(index, 1);
-    painting.all_images_300.splice(index, 1);
-    painting.all_images_1000.splice(index, 1);
+
+    console.log("Removing image from painting: ", paintingId, index);
 
     // delete the images from imagekio
     try {
@@ -283,14 +288,7 @@ export async function removeImageFromPainting(
       console.log("Error deleting image from imagekit: ", error);
     }
 
-    painting.all_imageIds.splice(index, 1);
-    painting.all_imageIds_150.splice(index, 1);
-    painting.all_imageIds_300.splice(index, 1);
-    painting.all_imageIds_1000.splice(index, 1);
-    painting.image_is_rendered.splice(index, 1);
-    await painting.save();
-    revalidatePath(`/paintings/${painting._id}`);
-    return JSON.stringify(painting);
+    return;
   } catch (error) {
     console.log("Error removing image from painting: ", error);
     throw error;

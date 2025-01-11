@@ -36,8 +36,6 @@ import {
 
 import { LoadingOverlay } from "../LoadingOverlay";
 
-import { useTransition } from "react";
-
 const urlEndpoint = process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT!;
 const publicKey = process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY!;
 
@@ -96,11 +94,6 @@ interface ProcessedImage {
   };
 }
 
-interface PaintingDisplay {
-  url: string;
-  fileId: string;
-}
-
 const PaintingItemForm = ({ params }: { params: { id: string } }) => {
   const form = useForm<z.infer<typeof paintingItemZodSchema>>({
     resolver: zodResolver(paintingItemZodSchema),
@@ -148,8 +141,17 @@ const PaintingItemForm = ({ params }: { params: { id: string } }) => {
   const { id } = params;
   const router = useRouter();
   const [paintingItem, setPaintingItem] = React.useState<any>(null);
-  const [Images, setImages] = React.useState<PaintingDisplay[]>([]);
   const [paintingId, setPaintingId] = React.useState<string>("");
+
+  const [allImages, setAllImages] = React.useState<string[]>([]);
+  const [allImageIds, setAllImageIds] = React.useState<string[]>([]);
+  const [allImages150, setAllImages150] = React.useState<string[]>([]);
+  const [allImageIds150, setAllImageIds150] = React.useState<string[]>([]);
+  const [allImages300, setAllImages300] = React.useState<string[]>([]);
+  const [allImageIds300, setAllImageIds300] = React.useState<string[]>([]);
+  const [allImages1000, setAllImages1000] = React.useState<string[]>([]);
+  const [allImageIds1000, setAllImageIds1000] = React.useState<string[]>([]);
+  const [imageIsRendered, setImageIsRendered] = React.useState<boolean[]>([]);
 
   const [busy, setBusy] = React.useState(true);
 
@@ -321,14 +323,46 @@ const PaintingItemForm = ({ params }: { params: { id: string } }) => {
       console.log("300px:", result.sizes[300].url, result.sizes[300].fileId);
       console.log("1000px:", result.sizes[1000].url, result.sizes[1000].fileId);
 
-      await addImageToPainting(paintingId, {
-        original: result.original,
-        sizes: {
-          "150": result.sizes[150],
-          "300": result.sizes[300],
-          "1000": result.sizes[1000],
-        },
-      });
+      const newAllImages = [...allImages];
+      const newAllImageIds = [...allImageIds];
+      const newAllImages150 = [...allImages150];
+      const newAllImageIds150 = [...allImageIds150];
+      const newAllImages300 = [...allImages300];
+      const newAllImageIds300 = [...allImageIds300];
+      const newAllImages1000 = [...allImages1000];
+      const newAllImageIds1000 = [...allImageIds1000];
+      const newImageIsRendered = [...imageIsRendered];
+
+      newAllImages.push(result.original.url);
+      newAllImageIds.push(result.original.fileId);
+      newAllImages150.push(result.sizes[150].url);
+      newAllImageIds150.push(result.sizes[150].fileId);
+      newAllImages300.push(result.sizes[300].url);
+      newAllImageIds300.push(result.sizes[300].fileId);
+      newAllImages1000.push(result.sizes[1000].url);
+      newAllImageIds1000.push(result.sizes[1000].fileId);
+      newImageIsRendered.push(false);
+
+      // Add new image to the end of the list
+      setAllImages(newAllImages);
+      setAllImageIds(newAllImageIds);
+      setAllImages150(newAllImages150);
+      setAllImageIds150(newAllImageIds150);
+      setAllImages300(newAllImages300);
+      setAllImageIds300(newAllImageIds300);
+      setAllImages1000(newAllImages1000);
+      setAllImageIds1000(newAllImageIds1000);
+      setImageIsRendered(newImageIsRendered);
+
+      form.setValue("all_images", newAllImages);
+      form.setValue("all_imageIds", newAllImageIds);
+      form.setValue("all_images_150", newAllImages150);
+      form.setValue("all_imageIds_150", newAllImageIds150);
+      form.setValue("all_images_300", newAllImages300);
+      form.setValue("all_imageIds_300", newAllImageIds300);
+      form.setValue("all_images_1000", newAllImages1000);
+      form.setValue("all_imageIds_1000", newAllImageIds1000);
+      form.setValue("image_is_rendered", newImageIsRendered);
 
       // Wrap router.refresh() in startTransition
     } catch (error) {
@@ -336,22 +370,57 @@ const PaintingItemForm = ({ params }: { params: { id: string } }) => {
     } finally {
       setBusy(false);
     }
-
-    window.location.reload();
   };
 
-  const handleRemoveImage = async (index: number, url: string) => {
+  const handleRemoveImage = async (index: number) => {
     setBusy(true);
     try {
-      await removeImageFromPainting(paintingId, url);
+      await removeImageFromPainting(paintingId, index);
+      const newAllImages = [...allImages];
+      const newAllImageIds = [...allImageIds];
+      const newAllImages150 = [...allImages150];
+      const newAllImageIds150 = [...allImageIds150];
+      const newAllImages300 = [...allImages300];
+      const newAllImageIds300 = [...allImageIds300];
+      const newAllImages1000 = [...allImages1000];
+      const newAllImageIds1000 = [...allImageIds1000];
+      const newImageIsRendered = [...imageIsRendered];
+
+      newAllImages.splice(index, 1);
+      newAllImageIds.splice(index, 1);
+      newAllImages150.splice(index, 1);
+      newAllImageIds150.splice(index, 1);
+      newAllImages300.splice(index, 1);
+      newAllImageIds300.splice(index, 1);
+      newAllImages1000.splice(index, 1);
+      newAllImageIds1000.splice(index, 1);
+      newImageIsRendered.splice(index, 1);
+
+      setAllImages(newAllImages);
+      setAllImageIds(newAllImageIds);
+      setAllImages150(newAllImages150);
+      setAllImageIds150(newAllImageIds150);
+      setAllImages300(newAllImages300);
+      setAllImageIds300(newAllImageIds300);
+      setAllImages1000(newAllImages1000);
+      setAllImageIds1000(newAllImageIds1000);
+      setImageIsRendered(newImageIsRendered);
+
+      form.setValue("all_images", newAllImages);
+      form.setValue("all_imageIds", newAllImageIds);
+      form.setValue("all_images_150", newAllImages150);
+      form.setValue("all_imageIds_150", newAllImageIds150);
+      form.setValue("all_images_300", newAllImages300);
+      form.setValue("all_imageIds_300", newAllImageIds300);
+      form.setValue("all_images_1000", newAllImages1000);
+      form.setValue("all_imageIds_1000", newAllImageIds1000);
+      form.setValue("image_is_rendered", newImageIsRendered);
     } catch (error) {
       console.error("Error removing image:", error);
     } finally {
       // Wrap router.refresh() in startTransition
       setBusy(false);
     }
-
-    window.location.reload();
   };
 
   useEffect(() => {
@@ -364,13 +433,17 @@ const PaintingItemForm = ({ params }: { params: { id: string } }) => {
         }
         const paintingInfo = JSON.parse(paintingItemString);
         setPaintingItem(paintingInfo);
-        setImages(
-          paintingInfo.all_images.map((url: string, index: number) => ({
-            url,
-            fileId: paintingInfo.all_imageIds[index],
-          }))
-        );
         setPaintingId(paintingInfo.painting_id);
+        setAllImages(paintingInfo.all_images);
+        setAllImageIds(paintingInfo.all_imageIds);
+        setAllImages150(paintingInfo.all_images_150);
+        setAllImageIds150(paintingInfo.all_imageIds_150);
+        setAllImages300(paintingInfo.all_images_300);
+        setAllImageIds300(paintingInfo.all_imageIds_300);
+        setAllImages1000(paintingInfo.all_images_1000);
+        setAllImageIds1000(paintingInfo.all_imageIds_1000);
+        setImageIsRendered(paintingInfo.image_is_rendered);
+
         form.reset(paintingInfo);
       } catch (error) {
         console.error(error);
@@ -399,6 +472,8 @@ const PaintingItemForm = ({ params }: { params: { id: string } }) => {
     setBusy(true);
     try {
       const validatedValues = paintingItemZodSchema.parse(values);
+      console.log(validatedValues);
+
       const validatedValuesString = JSON.stringify(validatedValues);
       console.log(validatedValuesString);
 
@@ -413,6 +488,84 @@ const PaintingItemForm = ({ params }: { params: { id: string } }) => {
     } finally {
       setBusy(false);
     }
+  };
+
+  const handleImageMove = (index: number, direction: "prev" | "next") => {
+    // need to change the order of the images in the form
+    const newAllImages = [...allImages];
+    const newAllImageIds = [...allImageIds];
+    const newAllImages150 = [...allImages150];
+    const newAllImageIds150 = [...allImageIds150];
+    const newAllImages300 = [...allImages300];
+    const newAllImageIds300 = [...allImageIds300];
+    const newAllImages1000 = [...allImages1000];
+    const newAllImageIds1000 = [...allImageIds1000];
+    const newImageIsRendered = [...imageIsRendered];
+
+    if (index === 0 && direction === "prev") return;
+    if (index === allImages.length - 1 && direction === "next") return;
+
+    // Swap the images
+    if (direction === "prev") {
+      // Swap the images
+      [newAllImages[index - 1], newAllImages[index]] = [
+        newAllImages[index],
+        newAllImages[index - 1],
+      ];
+      [newAllImageIds[index - 1], newAllImageIds[index]] = [
+        newAllImageIds[index],
+        newAllImageIds[index - 1],
+      ];
+      [newAllImages150[index - 1], newAllImages150[index]] = [
+        newAllImages150[index],
+        newAllImages150[index - 1],
+      ];
+      [newAllImageIds150[index - 1], newAllImageIds150[index]] = [
+        newAllImageIds150[index],
+        newAllImageIds150[index - 1],
+      ];
+      [newAllImages300[index - 1], newAllImages300[index]] = [
+        newAllImages300[index],
+        newAllImages300[index - 1],
+      ];
+      [newAllImageIds300[index - 1], newAllImageIds300[index]] = [
+        newAllImageIds300[index],
+        newAllImageIds300[index - 1],
+      ];
+      [newAllImages1000[index - 1], newAllImages1000[index]] = [
+        newAllImages1000[index],
+        newAllImages1000[index - 1],
+      ];
+      [newAllImageIds1000[index - 1], newAllImageIds1000[index]] = [
+        newAllImageIds1000[index],
+        newAllImageIds1000[index - 1],
+      ];
+      [newImageIsRendered[index - 1], newImageIsRendered[index]] = [
+        newImageIsRendered[index],
+        newImageIsRendered[index - 1],
+      ];
+    }
+    // update the values
+    setAllImages(newAllImages);
+    setAllImageIds(newAllImageIds);
+    setAllImages150(newAllImages150);
+    setAllImageIds150(newAllImageIds150);
+    setAllImages300(newAllImages300);
+    setAllImageIds300(newAllImageIds300);
+    setAllImages1000(newAllImages1000);
+    setAllImageIds1000(newAllImageIds1000);
+    setImageIsRendered(newImageIsRendered);
+
+    // update the form values
+    form.setValue("all_images", newAllImages);
+    form.setValue("all_imageIds", newAllImageIds);
+    form.setValue("all_images_150", newAllImages150);
+    form.setValue("all_imageIds_150", newAllImageIds150);
+    form.setValue("all_images_300", newAllImages300);
+    form.setValue("all_imageIds_300", newAllImageIds300);
+    form.setValue("all_images_1000", newAllImages1000);
+    form.setValue("all_imageIds_1000", newAllImageIds1000);
+    form.setValue("image_is_rendered", newImageIsRendered);
   };
 
   return (
@@ -929,7 +1082,7 @@ const PaintingItemForm = ({ params }: { params: { id: string } }) => {
                         <p>No images uploaded</p>
                       ))}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {Images.map(({ url }, index) => (
+                      {allImages300.map((url: string, index: number) => (
                         <div
                           key={index}
                           className="flex flex-col items-center space-y-2"
@@ -938,11 +1091,11 @@ const PaintingItemForm = ({ params }: { params: { id: string } }) => {
                             <img
                               src={url}
                               alt={`Preview ${index + 1}`}
-                              className="rounded-lg object-cover w-full aspect-square"
+                              className="rounded-lg object-cover w-64 aspect-square"
                             />
                             <Button
                               type="button"
-                              onClick={() => handleRemoveImage(index, url)}
+                              onClick={() => handleRemoveImage(index)}
                               className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 p-1 rounded-full"
                             >
                               <FaTimes />
@@ -966,6 +1119,24 @@ const PaintingItemForm = ({ params }: { params: { id: string } }) => {
                                 </FormItem>
                               )}
                             />
+                          </div>
+                          <div className="flex flex-row space-x-4 items-center">
+                            <Button
+                              type="button"
+                              onClick={() => handleImageMove(index, "prev")}
+                              disabled={index === 0}
+                              className="px-2 py-1"
+                            >
+                              ←
+                            </Button>
+                            <Button
+                              type="button"
+                              onClick={() => handleImageMove(index, "next")}
+                              disabled={index === allImages300.length - 1}
+                              className="px-2 py-1"
+                            >
+                              →
+                            </Button>
                           </div>
                         </div>
                       ))}
