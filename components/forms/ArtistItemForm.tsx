@@ -35,6 +35,9 @@ const artistZodSchema = z.object({
   birth_year: z.number().min(1, "Birth year is required"),
   bio: z.string().min(1, "Biography is required"),
   bio_chinese: z.string().min(1, "Chinese biography is required"),
+  awards: z.string().optional(),
+  exhibitions: z.string().optional(),
+  external_links: z.string().optional(),
   profile_image: z.string().url("Invalid image URL"),
   profile_imageId: z.string().optional(),
   featured: z.boolean().default(false),
@@ -56,6 +59,9 @@ const ArtistForm = ({ params }: { params: { id?: string } }) => {
       birth_year: 0,
       bio: "",
       bio_chinese: "",
+      awards: "",
+      exhibitions: "",
+      external_links: "",
       profile_image: "",
       profile_imageId: "",
       featured: false,
@@ -300,6 +306,70 @@ const ArtistForm = ({ params }: { params: { id?: string } }) => {
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={form.control}
+              name="awards"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Awards</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Enter awards and recognitions"
+                      className="resize-none min-h-[150px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    List any awards or recognitions received by the artist
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="exhibitions"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Exhibitions</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Enter exhibitions participated"
+                      className="resize-none min-h-[150px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    List any exhibitions the artist has participated in
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="external_links"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>External Links</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Enter external links"
+                      className="resize-none min-h-[150px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Add any external links related to the artist
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="profile_image"
