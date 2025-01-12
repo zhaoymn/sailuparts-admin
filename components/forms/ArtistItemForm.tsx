@@ -215,6 +215,11 @@ const ArtistForm = ({ params }: { params: { id?: string } }) => {
         ...values,
         profile_image: imageUrl,
         profile_imageId: imageId,
+        key_points: {
+          education: values.education,
+          current_profession: values.current_profession,
+          best_achievement: values.best_achievement,
+        },
       };
 
       if (id) {
