@@ -33,7 +33,7 @@ const artistZodSchema = z.object({
   _id: z.string().optional(),
   name: z.string().min(1, "English name is required"),
   name_chinese: z.string().min(1, "Chinese name is required"),
-  birth_year: z.number().min(1, "Birth year is required"),
+  birth_year: z.number().optional(),
   bio: z.string().min(1, "Biography is required"),
   bio_chinese: z.string().min(1, "Chinese biography is required"),
   awards: z.array(z.string()).default([]),
