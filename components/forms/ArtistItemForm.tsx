@@ -44,6 +44,11 @@ const artistZodSchema = z.object({
   profile_image: z.string().url("Invalid image URL"),
   profile_imageId: z.string().optional(),
   featured: z.boolean().default(false),
+  education: z.string().optional(),
+  current_profession: z.string().optional(),
+  best_achievement: z.string().optional(),
+  short_description: z.string().optional(),
+  title: z.string().optional(),
 });
 
 const ArtistForm = ({ params }: { params: { id?: string } }) => {
@@ -70,6 +75,11 @@ const ArtistForm = ({ params }: { params: { id?: string } }) => {
       profile_image: "",
       profile_imageId: "",
       featured: false,
+      education: "",
+      current_profession: "",
+      best_achievement: "",
+      short_description: "",
+      title: "",
     },
   });
 
@@ -261,6 +271,76 @@ const ArtistForm = ({ params }: { params: { id?: string } }) => {
                   <FormLabel>Birth Year</FormLabel>
                   <FormControl>
                     <Input placeholder="Enter birth year" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Title</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter title" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="short_description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Short Description</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter short description" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="education"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Education</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter education" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="current_profession"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Current Profession</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter current profession" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="best_achievement"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Best Achievement</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter best achievement" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
