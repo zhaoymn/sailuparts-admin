@@ -81,6 +81,7 @@ const ArtistForm = ({ params }: { params: { id?: string } }) => {
       try {
         const response = await getArtistById(id!);
         const artist = await JSON.parse(response);
+        artist.birth_year = artist.birth_year?.toString() || "";
         form.reset(artist);
         if (artist.profile_image) {
           setPreviewUrl(artist.profile_image);
