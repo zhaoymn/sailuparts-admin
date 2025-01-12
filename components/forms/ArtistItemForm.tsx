@@ -92,6 +92,9 @@ const ArtistForm = ({ params }: { params: { id?: string } }) => {
         const response = await getArtistById(id!);
         const artist = await JSON.parse(response);
         artist.birth_year = artist.birth_year?.toString() || "";
+        artist.education = artist.key_points.education;
+        artist.current_profession = artist.key_points.current_profession;
+        artist.best_achievement = artist.key_points.best_achievement;
         form.reset(artist);
         if (artist.profile_image) {
           setPreviewUrl(artist.profile_image);
