@@ -59,7 +59,7 @@ const ArtistForm = ({ params }: { params: { id?: string } }) => {
       _id: params.id,
       name: "",
       name_chinese: "",
-      birth_year: 0,
+      birth_year: "",
       bio: "",
       bio_chinese: "",
       awards: [],
