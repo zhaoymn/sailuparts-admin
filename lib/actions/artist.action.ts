@@ -82,11 +82,11 @@ export async function updateArtist(id: string, data: string) {
   try {
     await connectToDatabase();
     const artistData = JSON.parse(data) as IArtist;
-    console.log(artistData);
+
     const updatedArtist = await Artist.findByIdAndUpdate(id, {
       name: artistData.name,
       name_chinese: artistData.name_chinese,
-      birth_year: artistData.birth_year,
+      birth_year: parseInt(artistData.birth_year?.toString()) || 0,
       bio: artistData.bio,
       bio_chinese: artistData.bio_chinese,
       awards: artistData.awards,
@@ -115,7 +115,7 @@ export async function createArtist(data: string) {
       artist_id: artistData.artist_id,
       name: artistData.name,
       name_chinese: artistData.name_chinese,
-      birth_year: artistData.birth_year,
+      birth_year: parseInt(artistData.birth_year?.toString()) || 0,
       bio: artistData.bio,
       bio_chinese: artistData.bio_chinese,
       awards: artistData.awards,

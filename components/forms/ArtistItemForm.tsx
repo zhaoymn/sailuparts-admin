@@ -33,7 +33,7 @@ const artistZodSchema = z.object({
   _id: z.string().optional(),
   name: z.string().min(1, "English name is required"),
   name_chinese: z.string().min(1, "Chinese name is required"),
-  birth_year: z.number().optional(),
+  birth_year: z.string().optional(),
   bio: z.string().min(1, "Biography is required"),
   bio_chinese: z.string().min(1, "Chinese biography is required"),
   awards: z.array(z.string()).default([]),
@@ -259,17 +259,13 @@ const ArtistForm = ({ params }: { params: { id?: string } }) => {
                 <FormItem>
                   <FormLabel>Birth Year</FormLabel>
                   <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="Enter birth year"
-                      {...field}
-                      onChange={(e) => field.onChange(parseInt(e.target.value))}
-                    />
+                    <Input placeholder="Enter birth year" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="bio"
